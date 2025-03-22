@@ -12,7 +12,7 @@
 
 # Standard library imports
 from abc import ABC, abstractmethod
-from typing import Optional, Union
+from typing import Optional
 
 # Third party imports
 import numpy as np
@@ -101,11 +101,11 @@ class Optimization(ABC):
 
     def __init__(self,
                  params: Optional[OptimizationParameter] = None,
-                 constraints: Constraints = Constraints(),
+                 constraints: Optional[Constraints] = None,
                  **kwargs):
         self.params = OptimizationParameter() if params is None else params
         self.params.update(**kwargs)
-        self.constraints = constraints
+        self.constraints = Constraints() if constraints is None else constraints
         self.objective: Objective = Objective()
         self.results = {}
 
@@ -181,14 +181,35 @@ class Optimization(ABC):
 
 
 
+class EmptyOptimization(Optimization):
+    '''
+    Placeholder class for an optimization.
+    This class is intended to be a placeholder and should not be used directly.
+    '''
+
+    def set_objective(self, optimization_data: OptimizationData) -> None:
+        raise NotImplementedError(
+            'EmptyOptimization is a placeholder and does not implement set_objective.'
+        )
+
+    def solve(self) -> None:
+        raise NotImplementedError(
+            'EmptyOptimization is a placeholder and does not implement solve.'
+        )
+
+
 
 
 class LeastSquares(Optimization):
 
     def __init__(self,
+                 constraints: Optional[Constraints] = None,
                  covariance: Optional[Covariance] = None,
                  **kwargs):
-        super().__init__(**kwargs)
+        super().__init__(
+            constraints=constraints,
+            **kwargs
+        )
         self.covariance = covariance
 
     def set_objective(self, optimization_data: OptimizationData) -> None:
@@ -223,7 +244,7 @@ class LeastSquares(Optimization):
 class MeanVariance(Optimization):
 
     def __init__(self,
-                 constraints: Constraints,
+                 constraints: Optional[Constraints] = None,
                  covariance: Optional[Covariance] = None,
                  expected_return: Optional[ExpectedReturn] = None,
                  risk_aversion: float = 1,
