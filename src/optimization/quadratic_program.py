@@ -16,6 +16,9 @@ from typing import Optional, Union
 # Third party imports
 import pandas as pd
 import numpy as np
+# Explicitly disable JAX usage in qpsolvers to avoid compatibility issues
+import os
+os.environ["QPSOLVERS_NO_JAX"] = "1"
 import qpsolvers
 import scipy.sparse as spa
 
